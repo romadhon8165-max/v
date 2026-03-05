@@ -174,9 +174,9 @@ local UIStroke = Instance.new("UIStroke", MainFrame); UIStroke.Color = Color3.fr
 
 local TopBar = Instance.new("Frame"); TopBar.Size = UDim2.new(1, 0, 0, 40); TopBar.BackgroundTransparency = 1; TopBar.Active = true; TopBar.Parent = MainFrame
 local TitleLabel = Instance.new("TextLabel"); TitleLabel.Size = UDim2.new(0, 130, 1, 0); TitleLabel.Position = UDim2.new(0, 15, 0, 0)
-TitleLabel.BackgroundTransparency = 1; TitleLabel.Text = "AUTO TYPE V13"; TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255); TitleLabel.Font = Enum.Font.GothamBlack; TitleLabel.TextSize = 13; TitleLabel.TextXAlignment = Enum.TextXAlignment.Left; TitleLabel.Parent = TopBar
+TitleLabel.BackgroundTransparency = 1; TitleLabel.Text = "ALPHA TESTER"; TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255); TitleLabel.Font = Enum.Font.GothamBlack; TitleLabel.TextSize = 13; TitleLabel.TextXAlignment = Enum.TextXAlignment.Left; TitleLabel.Parent = TopBar
 local SubTitle = Instance.new("TextLabel"); SubTitle.Size = UDim2.new(0, 80, 1, 0); SubTitle.Position = UDim2.new(0, 125, 0, 1)
-SubTitle.BackgroundTransparency = 1; SubTitle.Text = "by moonmango"; SubTitle.TextColor3 = Color3.fromRGB(180, 180, 180); SubTitle.Font = Enum.Font.Gotham; SubTitle.TextSize = 9; SubTitle.TextXAlignment = Enum.TextXAlignment.Left; SubTitle.Parent = TopBar
+SubTitle.BackgroundTransparency = 1; SubTitle.Text = "by rama"; SubTitle.TextColor3 = Color3.fromRGB(180, 180, 180); SubTitle.Font = Enum.Font.Gotham; SubTitle.TextSize = 9; SubTitle.TextXAlignment = Enum.TextXAlignment.Left; SubTitle.Parent = TopBar
 
 local MinBtn = Instance.new("TextButton"); MinBtn.Size = UDim2.new(0, 30, 0, 40); MinBtn.Position = UDim2.new(1, -60, 0, 0)
 MinBtn.BackgroundTransparency = 1; MinBtn.Text = "—"; MinBtn.TextColor3 = Color3.fromRGB(200, 200, 200); MinBtn.Font = Enum.Font.GothamBold; MinBtn.TextSize = 14; MinBtn.ZIndex = 2; MinBtn.Parent = TopBar
