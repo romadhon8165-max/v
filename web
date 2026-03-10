@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kamus Sambung Kata By Keigo</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CYBERPUNK DESIGN SYSTEM --- */
+        :root {
+            --bg-void: #050505;
+            --bg-panel: rgba(10, 14, 23, 0.85);
+            
+            --neon-cyan: #00f3ff;
+            --neon-cyan-dim: rgba(0, 243, 255, 0.15);
+            --neon-pink: #ff003c;
+            --neon-yellow: #fcee0a;
+            
+            --text-main: #e0f8ff;
+            --text-muted: #4b6a78;
+            --border-tech: #173747;
+            
+            --clip-panel: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+            --transition: all 0.15s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: 'Rajdhani', sans-serif;
+            background-color: var(--bg-void);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* --- CRT SCANLINES & DIGITAL GRID BACKGROUND --- */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+            z-index: -1; pointer-events: none;
+        }
+        .cyber-grid {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -2;
+            background-image: 
+                linear-gradient(to right, rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
+            transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+            animation: gridMove 10s linear infinite;
+        }
+        @keyframes gridMove { from { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-200px); } to { transform: perspective(500px) rotateX(60deg) translateY(40px) translateZ(-200px); } }
+
+        /* --- MAIN LAYOUT --- */
+        .app-wrapper { width: 100%; max-width: 760px; display: flex; flex-direction: column; gap: 1.5rem; z-index: 10; }
+
+        /* --- CYBER PANEL --- */
+        .cyber-panel {
+            background: var(--bg-panel); backdrop-filter: blur(10px);
+            border: 1px solid var(--border-tech); padding: 2rem; position: relative;
+            clip-path: var(--clip-panel); box-shadow: inset 0 0 20px rgba(0, 243, 255, 0.02);
+        }
+        .cyber-panel::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent); opacity: 0.5;
+        }
+        .panel-decor { position: absolute; font-family: 'JetBrains Mono'; font-size: 10px; color: var(--text-muted); letter-spacing: 2px; }
+        .decor-top-right { top: 10px; right: 20px; }
+        .decor-bottom-left { bottom: 10px; left: 20px; }
+
+        /* --- HEADER & GLITCH TITLE --- */
+        .header-content { text-align: center; margin-bottom: 1.5rem; position: relative; }
+        .app-title {
+            font-family: 'Orbitron', sans-serif; font-size: 2.2rem; font-weight: 900;
+            color: #fff; text-shadow: 0 0 10px var(--neon-cyan), 0 0 20px var(--neon-cyan);
+            text-transform: uppercase; letter-spacing: 2px; margin-bottom: 0.5rem;
+            position: relative;
+        }
+        .status-hud {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon-cyan);
+            padding: 4px 16px; font-family: 'JetBrains Mono'; font-size: 0.75rem; color: var(--neon-cyan);
+            text-transform: uppercase; letter-spacing: 1px;
+            clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+        }
+        .blinking-dot { width: 8px; height: 8px; background: var(--neon-cyan); border-radius: 50%; animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--neon-cyan); } 50% { opacity: 0.3; box-shadow: none; } }
+
+        /* --- UX BARU: OPERATOR TIKTOK CREDIT (ABOVE LOGO) --- */
+        .operator-credit {
+            display: flex; flex-direction: column; align-items: center; gap: 5px;
+            margin-bottom: 10px; font-family: 'JetBrains Mono', monospace; text-align: center;
+        }
+        .op-label { font-size: 0.65rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; }
+        .op-user-link {
+            display: flex; align-items: center; gap: 8px;
+            text-decoration: none; color: var(--neon-yellow);
+            padding: 5px 15px; background: rgba(252, 238, 10, 0.05);
+            border: 1px solid rgba(252, 238, 10, 0.2); transition: var(--transition);
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+        }
+        .op-user-link:hover {
+            background: rgba(252, 238, 10, 0.15); border-color: var(--neon-yellow);
+            box-shadow: 0 0 10px rgba(252, 238, 10, 0.3); transform: translateY(-1px);
+        }
+        /* Ikon TikTok Digital Minimalis */
+        .tt-icon {
+            width: 14px; height: 14px; position: relative;
+            background: currentColor; /* Mengikuti warna neon-yellow */
+            clip-path: polygon(80% 0%, 100% 0%, 100% 60%, 80% 80%, 40% 80%, 0% 40%, 0% 0%, 20% 0%, 20% 40%, 60% 60%, 60% 0%);
+        }
+        .op-username { font-weight: bold; font-size: 0.9rem; letter-spacing: 1px; }
+
+        /* --- BANNER ROBLOX --- */
+        .target-wrapper {
+            position: relative; width: 100%; max-width: 212px; margin: 0 auto 2rem auto;
+            padding: 5px; background: repeating-linear-gradient(45deg, var(--border-tech) 0, var(--border-tech) 1px, transparent 1px, transparent 6px);
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+        }
+        .game-banner-link {
+            display: block; position: relative; width: 100%; aspect-ratio: 1 / 1; 
+            overflow: hidden; text-decoration: none; background-color: #000;
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px); user-select: none;
+        }
+        .game-banner-img { width: 100%; height: 100%; display: block; object-fit: cover; opacity: 0.7; filter: contrast(1.2) saturate(1.2); transition: var(--transition); }
+        .game-banner-link:hover .game-banner-img { opacity: 1; transform: scale(1.05); filter: contrast(1.1); }
+        .play-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85); border: 1px solid var(--neon-yellow); color: var(--neon-yellow);
+            padding: 10px 20px; font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 0.9rem; letter-spacing: 2px;
+            opacity: 0; transition: var(--transition); display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 0 15px rgba(252, 238, 10, 0.3); clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        }
+        .game-banner-link:hover .play-overlay { opacity: 1; }
+
+        /* --- INPUTS & HOTKEY INFO --- */
+        .hotkey-info { text-align: right; margin-bottom: 5px; font-family: 'JetBrains Mono'; font-size: 0.7rem; color: var(--neon-yellow); opacity: 0.8; letter-spacing: 1px;}
+        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+        @media (max-width: 500px) { .input-grid { grid-template-columns: 1fr; } }
+        
+        .input-wrapper { position: relative; }
+        .input-wrapper::before { content: "["; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--neon-cyan); font-family: 'JetBrains Mono'; font-weight: bold; }
+        .input-wrapper::after { content: "]"; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--neon-cyan); font-family: 'JetBrains Mono'; font-weight: bold; }
+        .input-wrapper input {
+            width: 100%; padding: 1.2rem 2rem;
+            background: rgba(0, 243, 255, 0.03); border: 1px solid var(--border-tech);
+            color: #fff; font-family: 'JetBrains Mono', monospace; font-size: 1rem; text-transform: uppercase;
+            outline: none; transition: var(--transition);
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        }
+        .input-wrapper input:focus { background: var(--neon-cyan-dim); border-color: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan-dim); }
+        .input-wrapper input::placeholder { color: var(--text-muted); text-transform: uppercase; }
+
+        /* --- SEGMENTED CONTROL --- */
+        /* --- PERBAIKAN TACTICAL SEGMENTED CONTROL UNTUK MOBILE --- */
+        .segmented-control {
+            display: flex; 
+            gap: 4px; 
+            margin-bottom: 2rem; 
+            user-select: none;
+            width: 100%; /* Pastikan memenuhi lebar container */
+        }
+
+        .segmented-control label {
+            flex: 1; 
+            text-align: center; 
+            padding: 0.8rem 4px; /* Padding samping dikurangi agar teks tidak sesak */
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif; 
+            font-size: 0.8rem; 
+            font-weight: 700; 
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid var(--border-tech);
+            transition: var(--transition); 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+            clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+            
+            /* Tambahan Kunci agar tidak berantakan: */
+            white-space: nowrap; /* Mencegah teks turun ke bawah */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 0; /* Mencegah flex-item meluap */
+        }
+
+        /* RESPONSIVE KHUSUS LAYAR KECIL (MOBILE) */
+        @media (max-width: 480px) {
+            .segmented-control label {
+                font-size: 0.65rem; /* Ukuran font diperkecil otomatis di mobile */
+                letter-spacing: 0.5px; /* Spasi huruf dirapatkan sedikit */
+                padding: 0.6rem 2px;
+            }
+            
+            .app-title {
+                font-size: 1.6rem; /* Judul juga diperkecil agar tidak memakan tempat */
+            }
+            
+            .operator-credit {
+                transform: scale(0.9); /* Mengecilkan widget TikTok sedikit */
+            }
+        }
+
+        
+
+        /* --- RESULTS SECTION --- */
+        .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px dashed var(--border-tech); padding-bottom: 0.8rem; }
+        .results-header h3 { font-family: 'Orbitron', sans-serif; font-size: 1rem; font-weight: 700; color: #fff; letter-spacing: 1px; }
+        .results-count { font-family: 'JetBrains Mono'; font-size: 0.85rem; color: #000; background: var(--neon-cyan); padding: 4px 10px; font-weight: bold; clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px); }
+
+        .pills-container {
+            display: flex; flex-wrap: wrap; gap: 8px; max-height: 400px; overflow-y: auto; padding-right: 5px;
+            scrollbar-width: thin; scrollbar-color: var(--neon-cyan) rgba(0,0,0,0.5); 
+        }
+        .pills-container::-webkit-scrollbar { width: 4px; }
+        .pills-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.3); }
+        .pills-container::-webkit-scrollbar-thumb { background: var(--neon-cyan); }
+
+        .word-pill {
+            background: rgba(0, 0, 0, 0.6); border: 1px solid var(--border-tech); border-left: 3px solid var(--neon-cyan);
+            color: #fff; padding: 0.6rem 1.2rem; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; font-weight: 500;
+            cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 6px;
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+        }
+        .word-pill:hover { background: var(--neon-cyan-dim); border-color: var(--neon-cyan); color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan); transform: translateY(-2px); }
+        .word-pill:active { transform: scale(0.95); }
+        
+        /* UX BARU: STYLE KATA YANG SUDAH DIPAKAI (GHOST MEMORY) */
+        .word-pill.used {
+            opacity: 0.4; border-color: var(--neon-pink); border-left-color: var(--neon-pink);
+            color: var(--neon-pink); text-decoration: line-through; background: rgba(255, 0, 60, 0.05);
+        }
+        .word-pill.used:hover { color: #fff; text-decoration: none; opacity: 1; }
+
+        .empty-state { width: 100%; text-align: center; padding: 4rem 0; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 15px; font-family: 'JetBrains Mono'; }
+        .empty-icon { font-size: 2.5rem; color: var(--border-tech); }
+
+        /* --- HUD TOAST NOTIFICATIONS --- */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 100; pointer-events: none; }
+        .toast {
+            background: rgba(0, 0, 0, 0.9); border-left: 4px solid; color: #fff; padding: 1rem 1.5rem;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; font-weight: bold;
+            display: flex; align-items: center; gap: 12px; box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+            animation: slideInRight 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        .toast.hide { animation: fadeOutRight 0.3s forwards; }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(120%); opacity: 0; } }
+        .toast.success { border-color: var(--neon-cyan); text-shadow: 0 0 5px var(--neon-cyan); }
+        .toast.error { border-color: var(--neon-pink); color: var(--neon-pink); text-shadow: 0 0 5px var(--neon-pink); }
+        .toast.info { border-color: var(--neon-yellow); color: var(--neon-yellow); }
+
+        /* --- FOOTER --- */
+        .footer { text-align: center; margin-top: 1rem; font-family: 'JetBrains Mono'; }
+        .footer p { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .footer span { color: var(--neon-cyan); font-weight: bold; }
+        .socials { display: flex; justify-content: center; gap: 1rem; }
+        .social-link {
+            background: rgba(0, 0, 0, 0.5); border: 1px solid var(--border-tech);
+            color: var(--text-muted); padding: 0.6rem 1.2rem; text-decoration: none; font-size: 0.8rem; font-weight: bold;
+            transition: var(--transition); display: flex; align-items: center; gap: 6px; text-transform: uppercase;
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+        }
+        .social-link:hover { background: var(--neon-cyan-dim); border-color: var(--neon-cyan); color: var(--neon-cyan); transform: translateY(-2px); }
+        .social-link:active { transform: translateY(0) scale(0.95); }
+    </style>
+</head>
+<body>
+
+<div class="cyber-grid"></div>
+
+<div class="app-wrapper">
+    
+    <main class="cyber-panel">
+        <div class="panel-decor decor-top-right">SYS.V.3.0 // REALTIME</div>
+        
+        <div class="header-content">
+            <h1 class="app-title">Sambung Kata</h1>
+            <div class="status-hud" id="db-status">
+                <div class="blinking-dot"></div> INIT SEQUENCE...
+            </div>
+        </div>
+
+        <div class="operator-credit">
+            <div class="op-label">Welcome, Operator</div>
+            <a href="https://www.tiktok.com/@ke3igo" target="_blank" class="op-user-link" onmousedown="playSound('tap', 0.15)">
+                <div class="tt-icon"></div>
+                <div class="op-username">@ke3igo</div>
+            </a>
+        </div>
+
+        <div class="target-wrapper">
+            <a href="https://www.roblox.com/games/130342654546662/Sambung-Kata" target="_blank" class="game-banner-link" onmousedown="playSound('tap', 0.25)">
+                <img src="noFilter.png" alt="Mainkan Sambung Kata" class="game-banner-img" onerror="this.src='https://tr.rbxcdn.com/180b1e4c7ba1eb18ddbdab81b83d1c81/768/432/Image/Png'">
+                <div class="play-overlay">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    LAUNCH
+                </div>
+            </a>
+        </div>
+
+        <div class="hotkey-info">PRESS [ESC] TO CLEAR INPUT</div>
+        <div class="input-grid">
+            <div class="input-wrapper">
+                <input type="text" id="awalan" placeholder="HURUF AWAL" autocomplete="off" spellcheck="false" autofocus>
+            </div>
+            <div class="input-wrapper">
+                <input type="text" id="akhiran" placeholder="AKHIRAN (OPT)" autocomplete="off" spellcheck="false">
+            </div>
+        </div>
+
+        <div class="segmented-control">
+            <input type="radio" id="sort_abjad" name="sort" value="abjad" checked>
+            <label for="sort_abjad" onmousedown="playSound('tap', 0.2)">[ A - Z ]</label>
+
+            <input type="radio" id="sort_pendek" name="sort" value="pendek">
+            <label for="sort_pendek" onmousedown="playSound('tap', 0.2)">[ MIN_LEN ]</label>
+            
+            <input type="radio" id="sort_panjang" name="sort" value="panjang">
+            <label for="sort_panjang" onmousedown="playSound('tap', 0.2)">[ MAX_LEN ]</label>
+        </div>
+
+        <div class="panel-decor decor-bottom-left">LIVE FEED ACTIVE</div>
+    </main>
+
+    <div class="cyber-panel">
+        <div class="results-header">
+            <h3>>> DATA_OUTPUT</h3>
+            <span class="results-count" id="result-count">0</span>
+        </div>
+        
+        <div class="pills-container" id="word-container">
+            <div class="empty-state">
+                <div class="empty-icon">[ _ ]</div>
+                <p>TYPE TO INITIATE SCAN...</p>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>ENGINEERED BY <span>KEIGO</span></p>
+        <div class="socials">
+            <a href="https://www.instagram.com/akbrmdns/" target="_blank" class="social-link" onmousedown="playSound('tap', 0.2)">INSTAGRAM</a>
+            <a href="https://www.tiktok.com/@ke3igo" target="_blank" class="social-link" onmousedown="playSound('tap', 0.2)">TIKTOK</a>
+        </div>
+    </footer>
+
+</div>
+
+<div id="toast-container"></div>
+
+<script>
+    // ==========================================
+    // AUDIO ENGINE
+    // ==========================================
+    const sfx = {
+        tap: new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'),
+        pop: new Audio('https://assets.mixkit.co/active_storage/sfx/1114/1114-preview.mp3'),
+        error: new Audio('https://assets.mixkit.co/active_storage/sfx/2572/2572-preview.mp3')
+    };
+
+    function playSound(type, volumeLevel = 0.2) {
+        let sound = sfx[type].cloneNode(); 
+        sound.volume = volumeLevel; 
+        sound.play().catch(e => {}); 
+    }
+
+    // ==========================================
+    // MAIN LOGIC (REAL-TIME + GHOST MEMORY)
+    // ==========================================
+    let kamusLengkap = [];
+    let usedWordsSession = new Set(); // Menyimpan sementara kata yang sudah di copy
+    
+    const containerEl = document.getElementById('word-container');
+    const countEl = document.getElementById('result-count');
+    const statusEl = document.getElementById('db-status');
+    const inputAwalan = document.getElementById('awalan');
+    const inputAkhiran = document.getElementById('akhiran');
+    const radioSorts = document.querySelectorAll('input[name="sort"]');
+
+    window.onload = async function() {
+        try {
+            const response = await fetch('datasets_kamus_bahasa.json');
+            if (!response.ok) throw new Error("Gagal");
+            const data = await response.json();
+            kamusLengkap = data.map(kata => kata.toLowerCase());
+            statusEl.innerHTML = `<div class="blinking-dot"></div> DB_LINKED: ${kamusLengkap.length.toLocaleString('id-ID')}`;
+            inputAwalan.focus();
+        } catch (error) {
+            statusEl.innerHTML = `<div class="blinking-dot" style="background:var(--neon-pink);"></div> DB_ERR_OFFLINE`;
+            statusEl.style.color = 'var(--neon-pink)';
+            statusEl.style.borderColor = 'var(--neon-pink)';
+            statusEl.style.background = 'rgba(255, 0, 60, 0.1)';
+            containerEl.innerHTML = '<div class="empty-state" style="color:var(--neon-pink);"><p>ERR: DATASETS_NOT_FOUND</p></div>';
+        }
+    }
+
+    inputAwalan.addEventListener('input', cariKata);
+    inputAkhiran.addEventListener('input', cariKata);
+    radioSorts.forEach(radio => radio.addEventListener('change', cariKata));
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            inputAwalan.value = '';
+            inputAkhiran.value = '';
+            inputAwalan.focus();
+            playSound('tap', 0.3);
+            cariKata();
+        }
+    });
+
+    function showToast(message, type = 'success') {
+        const toastContainer = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        
+        let prefix = type === 'success' ? '[SYS.OK]' : (type === 'error' ? '[SYS.ERR]' : '[SYS.INFO]');
+        toast.innerHTML = `<span>${prefix}</span> <span>${message}</span>`;
+        
+        toastContainer.appendChild(toast);
+        setTimeout(() => {
+            toast.classList.add('hide');
+            setTimeout(() => toast.remove(), 300); 
+        }, 3000);
+    }
+
+    function cariKata() {
+        let awalan = inputAwalan.value.toLowerCase().trim();
+        let akhiran = inputAkhiran.value.toLowerCase().trim();
+        let modeUrut = document.querySelector('input[name="sort"]:checked').value;
+
+        if (!awalan && !akhiran) {
+            countEl.innerText = `0`;
+            containerEl.innerHTML = '<div class="empty-state"><div class="empty-icon">[ _ ]</div><p>AWAITING PARAMETERS...</p></div>';
+            return;
+        }
+
+        let hasil = kamusLengkap; 
+
+        if (awalan) hasil = hasil.filter(kata => kata.startsWith(awalan));
+        if (akhiran) hasil = hasil.filter(kata => kata.endsWith(akhiran));
+
+        if (modeUrut === "abjad") {
+            hasil.sort();
+        } else if (modeUrut === "pendek") {
+            hasil.sort((a, b) => a.length - b.length);
+        } else {
+            hasil.sort((a, b) => b.length - a.length);
+        }
+
+        if (hasil.length > 0) {
+            renderPills(hasil);
+        } else {
+            renderEmpty();
+        }
+    }
+
+    function renderPills(daftarKata) {
+        containerEl.innerHTML = ""; 
+        countEl.innerText = `${daftarKata.length.toLocaleString('id-ID')}`;
+        
+        const fragment = document.createDocumentFragment();
+        const limit = Math.min(daftarKata.length, 500); 
+
+        for (let i = 0; i < limit; i++) {
+            let kata = daftarKata[i];
+            const button = document.createElement('button');
+            button.className = 'word-pill';
+            button.innerText = kata;
+            button.title = "CLICK_TO_CLONE";
+            
+            if (usedWordsSession.has(kata)) {
+                button.classList.add('used');
+            }
+            
+            button.onmousedown = function() { playSound('pop', 0.4); };
+
+            button.onclick = function() {
+                navigator.clipboard.writeText(kata).then(() => {
+                    showToast(`COPIED: ${kata.toUpperCase()}`, 'success');
+                    usedWordsSession.add(kata);
+                    this.classList.add('used');
+                    
+                    const originalBg = this.style.background;
+                    const originalColor = this.style.color;
+                    this.style.background = 'var(--neon-cyan)';
+                    this.style.color = '#000';
+                    this.style.textDecoration = 'none'; 
+                    
+                    setTimeout(() => {
+                        this.style.background = originalBg;
+                        this.style.color = originalColor;
+                        this.style.textDecoration = ''; 
+                    }, 200);
+                });
+            };
+            fragment.appendChild(button);
+        }
+        
+        containerEl.appendChild(fragment);
+        
+        if (daftarKata.length > 500) {
+            const warning = document.createElement('div');
+            warning.style.width = "100%"; warning.style.textAlign = "center";
+            warning.style.padding = "10px"; warning.style.color = "var(--neon-yellow)";
+            warning.style.fontFamily = "JetBrains Mono"; warning.style.fontSize = "0.8rem";
+            warning.innerText = `+ ${(daftarKata.length - 500).toLocaleString('id-ID')} HIDDEN_DATA (BE MORE SPECIFIC)`;
+            containerEl.appendChild(warning);
+        }
+    }
+
+    function renderEmpty() {
+        countEl.innerText = `0`;
+        containerEl.innerHTML = '<div class="empty-state"><div class="empty-icon">[!]</div><p>NULL_RESULT_FOUND</p></div>';
+    }
+</script>
+
+</body>
+</html>
